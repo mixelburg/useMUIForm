@@ -14,8 +14,10 @@ function App() {
   const { state, register, reset, forceValidate } = useForm()
 
   const handleSubmit = () => {
-    forceValidate()
-    console.log(state)
+    if(forceValidate()) {
+      console.log(state)
+    }
+
   }
 
   return (

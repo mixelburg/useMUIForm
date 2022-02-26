@@ -1,4 +1,6 @@
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import { useAtom } from 'jotai'
+import { atomWithHash } from 'jotai/utils'
 
 type ValidateFunc = (value: string) => string | true
 
@@ -29,7 +31,7 @@ interface ITouchedState {
   [key: string]: boolean
 }
 
-const generateErrorState = (defaultState: IState) => {
+const generateErrorState = (defaultState: IState): IErrorState => {
   const errorState: IErrorState = {}
   for (const key in defaultState) {
     errorState[key] = undefined
@@ -37,7 +39,7 @@ const generateErrorState = (defaultState: IState) => {
   return errorState
 }
 
-const generateTouchedState = (defaultState: IState) => {
+const generateTouchedState = (defaultState: IState): ITouchedState => {
   const touchedState: ITouchedState = {}
   for (const key in defaultState) {
     touchedState[key] = false
@@ -45,13 +47,19 @@ const generateTouchedState = (defaultState: IState) => {
   return touchedState
 }
 
+const checkValid = (errors: IErrorState) => {
+  return Object.values(errors).every(error => error === undefined)
+}
+
+
 const useForm = () => {
   const defaultState: IState = {}
   const stateOptions: IStateOptions = {}
+  const stateAtom = useMemo(() => atomWithHash<IState>('form', defaultState, {replaceState: true}), []);
+  const [state, setState] = useAtom(stateAtom)
 
-  const [state, setState] = useState(defaultState)
-  const [errors, setErrors] = useState(generateErrorState(defaultState))
-  const [touched, setTouched] = useState(generateTouchedState(defaultState))
+  const [errors, setErrors] = useState<IErrorState>(generateErrorState(defaultState))
+  const [touched, setTouched] = useState<ITouchedState>(generateTouchedState(defaultState))
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     // update touched state to reflect user interaction
@@ -113,8 +121,10 @@ const useForm = () => {
     setTouched(generateTouchedState(defaultState))
   }
 
-  const forceValidate = () => {
-    setErrors(validate(state, false))
+  const forceValidate = (): boolean => {
+    const res = validate(state, false)
+    setErrors(res)
+    return checkValid(res)
   }
 
   return {
