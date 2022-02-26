@@ -61,6 +61,7 @@ const useForm = () => {
   const [errors, setErrors] = useState<IErrorState>(generateErrorState(defaultState))
   const [touched, setTouched] = useState<ITouchedState>(generateTouchedState(defaultState))
 
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     // update touched state to reflect user interaction
     setTouched({
