@@ -11,13 +11,13 @@ import {
 import useForm from 'useForm'
 
 function App() {
-  const { state, register, reset, forceValidate } = useForm()
+  const { state, register, reset, forceValidate, clear } = useForm('form')
 
   const handleSubmit = () => {
     if(forceValidate()) {
       console.log(state)
+      clear()
     }
-
   }
 
   return (

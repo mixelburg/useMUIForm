@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useState } from 'react'
 import { useAtom } from 'jotai'
-import { atomWithHash } from 'jotai/utils'
+import { atomWithHash, RESET } from 'jotai/utils'
 
 type ValidateFunc = (value: string) => string | true
 
@@ -52,15 +52,14 @@ const checkValid = (errors: IErrorState) => {
 }
 
 
-const useForm = () => {
+const useForm = (urlKey: string) => {
   const defaultState: IState = {}
   const stateOptions: IStateOptions = {}
-  const stateAtom = useMemo(() => atomWithHash<IState>('form', defaultState, {replaceState: true}), []);
+  const stateAtom = useMemo(() => atomWithHash<IState>(urlKey, defaultState, {replaceState: true}), []);
   const [state, setState] = useAtom(stateAtom)
 
   const [errors, setErrors] = useState<IErrorState>(generateErrorState(defaultState))
   const [touched, setTouched] = useState<ITouchedState>(generateTouchedState(defaultState))
-
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     // update touched state to reflect user interaction
@@ -128,12 +127,18 @@ const useForm = () => {
     return checkValid(res)
   }
 
+  const clear = () => {
+    reset()
+    setState(RESET)
+  }
+
   return {
     state,
     errors,
     register,
     reset,
     forceValidate,
+    clear,
   }
 }
 
